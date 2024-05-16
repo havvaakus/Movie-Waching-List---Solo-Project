@@ -22,18 +22,8 @@
     <title>Watchlist</title>
 </head>
 <body>
-    <h1>My Watchlist</h1>
+    <h1>Watchlist</h1>
     <ul id="watchlist"></ul>
-
-    <script>
-        const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
-        const watchlistElement = document.getElementById('watchlist');
-        watchlist.forEach(movie => {
-            const listItem = document.createElement('li');
-            listItem.textContent = movie.title;
-            watchlistElement.appendChild(listItem);
-        });
-    </script>
     <script src="watchlist.js"></script>
 </body>
 </html>
