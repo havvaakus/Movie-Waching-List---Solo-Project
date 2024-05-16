@@ -16,30 +16,72 @@ class Movie {
 
 const baseURL = `http://www.omdbapi.com/?apikey=55ab83a3`
 
-async function search (parameter) {
+// parameter #1: movie id
+// returns: Movie
+async function getMovieDetailsAsync (id){
+    try {
+        // make request 
+        const detailResponse = await fetch(`${baseURL}&i=${encodeURIComponent(id)}`);
+        // get response : json
+        const details = await detailResponse.json();
+        // movie
+        const movie = new Movie(details.imdbID, details.Title, details.imdbRating, details.Runtime, details.Genre, details.Plot, details.Poster);
+        //return movie
+        return movie
+    } catch (detailError) {
+        console.error('Failed to fetch movie details:', detailError);
+    }
+}
+
+async function searchAsync (parameter) {
     let movieArray = []
     try {
         const response = await fetch(`${baseURL}&s=${encodeURIComponent(parameter)}`);
         const data = await response.json();
         for (let movie of data.Search) {
-            try {
-                const detailResponse = await fetch(`${baseURL}&i=${encodeURIComponent(movie.imdbID)}`);
-                const details = await detailResponse.json();
-                
-                movieArray.push(new Movie(details.imdbID, details.Title, details.imdbRating, details.Runtime, details.Genre, details.Plot, details.Poster));
-            } catch (detailError) {
-                console.error('Failed to fetch movie details:', detailError);
-            }
+            movieArray.push(await getMovieDetailsAsync(movie.imdbID));
         }
     } catch (error) {
         console.error('Failed to fetch:', error);
     }
     return movieArray;
 }
+
+function getWatchlistFromLocalStorage () {
+    return JSON.parse(localStorage.getItem('watchlist')) || [];
+}
+
+async function getWatchlistDetailsAsync() {
+    let movieArray = []
+    const watchlist = getWatchlistFromLocalStorage ();
+
+    if (!watchlist == []) {
+        watchlist.forEach (async movieId => {
+            movieArray.push(await getMovieDetailsAsync(movieId));
+        });
+        console.log(movieArray);
+        return movieArray;
+    }
+    else {
+        console.log("Watchlist is empty");
+        return [];
+    }
+}
+
+//Define localstorage helper function
+function addToWatchlist(movieId) {
+    const watchlist = getWatchlistFromLocalStorage()
+    // Check if the movie is already in the watchlist
+    if (!watchlist.some(id => id === movieId)) {
+        watchlist.push(movieId)
+        localStorage.setItem('watchlist', JSON.stringify(watchlist))
+    }
+}
+
+
 searchBtn.addEventListener("click", async () => {
     const searchInput = document.getElementById("search-input").value;
-    const movies = await search(searchInput)
-    console.log(movies)
+    const movies = await searchAsync(searchInput)
 
     const resultsContainer = document.getElementById('results-container') // Make sure this div exists in your HTML
     resultsContainer.innerHTML = ''; // Clear previous results
@@ -49,36 +91,18 @@ searchBtn.addEventListener("click", async () => {
         movieElement.innerHTML = `
             <img src=${movie.posterUrl}></img>
             <h2>${movie.name} (${movie.score})</h2>
-            <h2>${movie.name}${movie.name}</h2>
-            <button onclick='handleAddToWatchlist("${movie.id}")'>Add to Watchlist</button>
+            <h3>${movie.runtime} ${movie.genre}</h3>
+            <p>${movie.description}</p>
+            <button onclick='addToWatchlist("${movie.id}")'>Add to Watchlist</button>
         `;
         resultsContainer.appendChild(movieElement)
     });
 });
 
-//Define localstorage helper function
-function addToWatchlist(movie) {
-    const watchlist = getWatchlist()
-    // Check if the movie is already in the watchlist
-    if (!watchlist.some(m => m.id === movie.id)) {
-        watchlist.push(movie)
-        localStorage.setItem('watchlist', JSON.stringify(watchlist))
-    }
-}
-
-function getWatchlist() {
-    return JSON.parse(localStorage.getItem('watchlist')) || [];
-}
-
-
-
-function handleAddToWatchlist(movieId) {
-    const movie = movies.find(m => m.id === movieId);
-    addToWatchlist(movie);
-}
-
-
-
+//Return watchlist page
+watchlistBtn.addEventListener("click", function() {
+    window.location.href = 'watchlist.html';
+});
 
 
 // kimin watchlisti
@@ -101,7 +125,4 @@ function handleAddToWatchlist(movieId) {
 // }
 
 
-//Return watchlist page
-watchlistBtn.addEventListener("click", function() {
-    window.location.href = 'watchlist.html';
-});
+
