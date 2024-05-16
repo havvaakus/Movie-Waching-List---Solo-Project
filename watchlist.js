@@ -1,29 +1,65 @@
+// const searchInput = document.getElementById('search-input');
+// const resultsContainer = document.getElementById('results-container');
+// const watchlistBtn = document.getElementById('watchlist-btn');
+// const searchBtn = document.getElementById("search-btn")
+
+// // load movies from API with name search
+// async function loadMovies(searchTerm){
+//     const URL = `https://omdbapi.com/?s=${searchTerm}&apikey=55ab83a3`
+//     const res = await fetch(`${URL}`);
+//     const data = await res.json();
+//     if(data.Response == "True") displayMovieList(data.Search);
+// }
+// loadMovies("superman")
 const searchInput = document.getElementById('search-input');
 const resultsContainer = document.getElementById('results-container');
 const watchlistBtn = document.getElementById('watchlist-btn');
-const searchBtn = document.getElementById("search-btn")
+const searchBtn = document.getElementById("search-btn");
 
-// load movies from API with name search
-async function loadMovies(searchTerm){
-    const URL = `https://omdbapi.com/?s=${searchTerm}&apikey=55ab83a3`
-    const res = await fetch(`${URL}`);
-    const data = await res.json();
-    console.log(data.Search);
+// Function to fetch movie details by ID
+async function fetchMovieDetails(movieId) {
+    const movieDetailsURL = `https://omdbapi.com/?i=${movieId}&apikey=55ab83a3`;
+    const movieDetailsRes = await fetch(movieDetailsURL);
+    const movieDetails = await movieDetailsRes.json();
+    return movieDetails;
 }
-loadMovies("superman")
 
-async function getMovieDetailsAsync (id){
-    const baseURL = `https://omdbapi.com/?i=${searchTerm}&apikey=55ab83a3`
-        try {
-            // make request 
-            const detailResponse = await fetch(`${baseURL}}`);
-            // get response : json
-            const details = await detailResponse.json();
-            // movie
-            const movie = new Movie(details.imdbID, details.Title, details.imdbRating, details.Runtime, details.Genre, details.Plot, details.Poster);
-            //return movie
-            return movie
-        } catch (detailError) {
-            console.error('Failed to fetch movie details:', detailError);
+// Function to load movies from API with name search
+async function loadMovies(searchTerm) {
+    const searchURL = `https://omdbapi.com/?s=${searchTerm}&apikey=55ab83a3`;
+    const searchRes = await fetch(searchURL);
+    const searchData = await searchRes.json();
+
+    if (searchData.Response === "True") {
+        const movies = searchData.Search;
+        const moviesWithDetails = [];
+        for (let i = 0; i < movies.length; i++) {
+            const movieId = movies[i].imdbID;
+            const movieDetails = await fetchMovieDetails(movieId);
+            moviesWithDetails.push(movieDetails);
         }
+        return moviesWithDetails;
+    } else {
+        console.log("No movies found");
+        return []; // Return an empty array if no movies are found
     }
+}
+
+searchBtn.addEventListener("click", async () => {
+    const searchInputValue = searchInput.value;
+    const movies = await loadMovies(searchInputValue);
+
+    resultsContainer.innerHTML = ''; // Clear previous results
+
+    movies.forEach(movie => {
+        const movieElement = document.createElement('div');
+        movieElement.innerHTML = `
+            <img src=${movie.Poster}></img>
+            <h2>${movie.Title} (${movie.imdbRating})</h2>
+            <h3>${movie.Runtime} ${movie.Genre}</h3>
+            <p>${movie.Plot}</p>
+            <button onclick='addToWatchlist("${movie.imdbID}")'>Add to Watchlist</button>
+        `;
+        resultsContainer.appendChild(movieElement);
+    });
+});
