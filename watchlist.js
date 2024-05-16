@@ -50,50 +50,11 @@ searchBtn.addEventListener("click", async () => {
         resultsContainer.appendChild(movieElement)
     })
 })
-// function addToWatchlist(movieId, movieTitle) {
-//     const watchlist = JSON.parse(localStorage.getItem('watchlist')) || []
-//     if (!watchlist.some(movie => movie.id === movieId)) {
-//         watchlist.push({ id: movieId, title: movieTitle })
-//         localStorage.setItem('watchlist', JSON.stringify(watchlist))
-//     } 
-// }
+function addToWatchlist(movieId, movieTitle) {
+    const watchlist = JSON.parse(localStorage.getItem('watchlist')) || []
+    if (!watchlist.some(movie => movie.id === movieId)) {
+        watchlist.push({ id: movieId, title: movieTitle })
+        localStorage.setItem('watchlist', JSON.stringify(watchlist))
+    } 
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-    const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
-
-    const watchlistContainer = document.getElementById('watchlist');
-    
-    // Function to render watchlist
-    function renderWatchlist() {
-        watchlistContainer.innerHTML = '';
-        watchlist.forEach(movie => {
-            const li = document.createElement('li');
-            li.textContent = movie.Title;
-            watchlistContainer.appendChild(li);
-        });
-    }
-
-    renderWatchlist();
-
-    // Function to add movie to watchlist
-    function addToWatchlist(movieId) {
-        const movieDetailsURL = `https://omdbapi.com/?i=${movieId}&apikey=55ab83a3`;
-        fetch(movieDetailsURL)
-            .then(response => response.json())
-            .then(movie => {
-                if (!watchlist.find(item => item.imdbID === movie.imdbID)) {
-                    watchlist.push(movie);
-                    localStorage.setItem('watchlist', JSON.stringify(watchlist));
-                    renderWatchlist();
-                }
-            })
-            .catch(error => console.error('Error adding movie to watchlist:', error));
-    }
-
-    // Example of adding event listener to watchlist button (replace it with your actual implementation)
-    const addWatchlistBtn = document.getElementById('add-to-watchlist-btn');
-    addWatchlistBtn.addEventListener('click', () => {
-        const movieId = 'tt1234567'; // Replace with actual movie ID
-        addToWatchlist(movieId);
-    });
-});
