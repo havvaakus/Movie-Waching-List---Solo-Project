@@ -1,60 +1,67 @@
-const searchInput = document.getElementById("search-input")
+
 const resultsContainer = document.getElementById("results-container")
-const watchlistBtn = document.getElementById("watchlist-btn")
-const searchBtn = document.getElementById("search-btn")
+
+class Movie {
+    constructor(id, name, score, runtime, genre, description, posterUrl) {
+      this.id = id;
+      this.name = name;
+      this.score = score; // Rating or score of the movie
+      this.runtime = runtime; // Runtime in minutes
+      this.genre = genre; // Genre of the movie
+      this.description = description; // A brief description of the movie
+      this.posterUrl = posterUrl; // URL to the movie's poster image
+    }
+}
+
+function displayMovies(movies) {
+    movies.forEach(movie => {
+        const movieElement = document.createElement('div')
+        movieElement.innerHTML = `
+            <img src=${movie.posterUrl}></img>
+            <h2>${movie.name} (${movie.score})</h2>
+            <h3>${movie.runtime} ${movie.genre}</h3>
+            <p>${movie.description}</p>
+            <button onclick="removeFromWatchlist('${movie.id}')">Remove</button>
+        `
+        resultsContainer.appendChild(movieElement)
+    })
+}
+
+function getWatchlist() {
+    return JSON.parse(localStorage.getItem('watchlist')) || []
+}
+
+function updateWatchlist(watchlist) {
+    localStorage.setItem('watchlist', JSON.stringify(watchlist));
+}
+
+// Remove item from local storage with given id
+function removeFromWatchlist(movieId) {
+    const watchlist = getWatchlist();
+    const updatedWatchlist = watchlist.filter(id => id !== movieId);
+    updateWatchlist(updatedWatchlist);
+}
 
 // Function to fetch movie details by ID
 async function fetchMovieDetailsAsync(movieId) {
     const movieDetailsURL = `https://omdbapi.com/?i=${movieId}&apikey=55ab83a3`
     const movieDetailsRes = await fetch(movieDetailsURL)
-    const movieDetails = await movieDetailsRes.json()
-    return movieDetails
+    const details = await movieDetailsRes.json()
+    const movie = new Movie(details.imdbID, details.Title, details.imdbRating, details.Runtime, details.Genre, details.Plot, details.Poster);
+    return movie
 }
 
-// Function to load movies from API with name search
-async function loadMoviesAsync(searchTerm) {
-    const searchURL = `https://omdbapi.com/?s=${searchTerm}&apikey=55ab83a3`
-    const searchRes = await fetch(searchURL)
-    const searchData = await searchRes.json()
 
-    if (searchData.Response === "True") {
-        const movies = searchData.Search
-        const moviesWithDetails = []
-        for (let i = 0; i < movies.length; i++) {
-            const movieId = movies[i].imdbID
-            const movieDetails = await fetchMovieDetailsAsync(movieId)
-            moviesWithDetails.push(movieDetails)
-        }
-        return moviesWithDetails
-    } else {
-        console.log("No movies found")
-        return [] // Return an empty array if no movies are found
+async function main () {
+    const watchlist = getWatchlist();
+
+    const movies = []
+    for (let i = 0; i < watchlist.length; i++) {
+        const movieWithDetails = await fetchMovieDetailsAsync(watchlist[i]);
+        movies.push(movieWithDetails);
     }
+
+    displayMovies(movies);
 }
 
-searchBtn.addEventListener("click", async () => {
-    const searchInputValue = searchInput.value
-    const movies = await loadMoviesAsync(searchInputValue)
-
-    resultsContainer.innerHTML = '' // Clear previous results
-
-    movies.forEach(movie => {
-        const movieElement = document.createElement('div')
-        movieElement.innerHTML = `
-            <img src=${movie.Poster}></img>
-            <h2>${movie.Title} (${movie.imdbRating})</h2>
-            <h3>${movie.Runtime} ${movie.Genre}</h3>
-            <p>${movie.Plot}</p>
-            <button onclick='addToWatchlist("${movie.imdbID}")'>Add to Watchlist</button>
-        `
-        resultsContainer.appendChild(movieElement)
-    })
-})
-function addToWatchlist(movieId, movieTitle) {
-    const watchlist = JSON.parse(localStorage.getItem('watchlist')) || []
-    if (!watchlist.some(movie => movie.id === movieId)) {
-        watchlist.push({ id: movieId, title: movieTitle })
-        localStorage.setItem('watchlist', JSON.stringify(watchlist))
-    } 
-}
-
+main();

@@ -1,36 +1,9 @@
-const searchInput = document.getElementById("search-input")
-const resultsContainer = document.getElementById("results-container")
-const watchlistBtn = document.getElementById("watchlist-btn")
-const searchBtn = document.getElementById("search-btn")
-
-class Movie {
-    constructor(id, name, score, runtime, genre, description, posterUrl) {
-      this.id = id;
-      this.name = name;
-      this.score = score; // Rating or score of the movie
-      this.runtime = runtime; // Runtime in minutes
-      this.genre = genre; // Genre of the movie
-      this.description = description; // A brief description of the movie
-      this.posterUrl = posterUrl; // URL to the movie's poster image
-    }
-}
-
-searchBtn.addEventListener("click", async () => {
-    const searchInputValue = searchInput.value
-    const movies = await loadMoviesAsync(searchInputValue)
-
-    resultsContainer.innerHTML = '' // Clear previous results
-
-    displayMovies(movies);
-})
-
 // Function to fetch movie details by ID
 async function fetchMovieDetailsAsync(movieId) {
     const movieDetailsURL = `https://omdbapi.com/?i=${movieId}&apikey=55ab83a3`
     const movieDetailsRes = await fetch(movieDetailsURL)
-    const details = await movieDetailsRes.json()
-    const movie = new Movie(details.imdbID, details.Title, details.imdbRating, details.Runtime, details.Genre, details.Plot, details.Poster);
-    return movie
+    const movieDetails = await movieDetailsRes.json()
+    return movieDetails
 }
 
 // Function to load movies from API with name search
@@ -54,7 +27,7 @@ async function loadMoviesAsync(searchTerm) {
     }
 }
 
-function displayMovies(movies) {
+function displayMovies(document, container, movies) {
     movies.forEach(movie => {
         const movieId = movie.id;
         const watchlist = getWatchlist();
@@ -63,13 +36,13 @@ function displayMovies(movies) {
 
         const movieElement = document.createElement('div')
         movieElement.innerHTML = `
-            <img src=${movie.posterUrl}></img>
-            <h2>${movie.name} (${movie.score})</h2>
-            <h3>${movie.runtime} ${movie.genre}</h3>
-            <p>${movie.description}</p>
-            ${!isInWatchlist ? `<button onclick="addToWatchlist('${movie.id}')">Add to Watchlist</button>` : "<p>Movie is already in your watchlist</p>"}
+            <img src=${movie.Poster}></img>
+            <h2>${movie.Title} (${movie.imdbRating})</h2>
+            <h3>${movie.Runtime} ${movie.Genre}</h3>
+            <p>${movie.Plot}</p>
+            ${!isInWatchlist ? `<button onclick="addToWatchlist('${movie.imdbID}')">Add to Watchlist</button>` : "<p>Movie is already in your watchlist</p>"}
         `
-        resultsContainer.appendChild(movieElement)
+        container.appendChild(movieElement)
     })
 }
 
