@@ -18,7 +18,7 @@ function displayMovies(movies) {
         const movieElement = document.createElement('div')
         movieElement.innerHTML = `
             <img src=${movie.posterUrl}></img>
-            <h2>${movie.name} (${movie.score})</h2>
+            <h2>${movie.name} (⭐${movie.score})</h2>
             <h3>${movie.runtime} ${movie.genre}</h3>
             <p>${movie.description}</p>
             <button onclick="removeFromWatchlist('${movie.id}')">Remove</button>
