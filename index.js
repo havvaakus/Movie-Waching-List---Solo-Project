@@ -67,11 +67,13 @@ function displayMovies(movies) {
             <h2>${movie.name} (⭐${movie.score})</h2>
             <h3>${movie.runtime} ${movie.genre}</h3>
             <p>${movie.description}</p>
-            ${!isInWatchlist ? `<button onclick="addToWatchlist('${movie.id}')">Add to Watchlist</button>` : "<p>Movie is already in your watchlist</p>"}
+            ${!isInWatchlist ? `<button onclick="addToWatchlist('${movie.id}')" class="btn"><i class="fa fa-plus"></i> Watchlist</button>` : "<p>Movie is already in your watchlist</p>"}
         `
         resultsContainer.appendChild(movieElement)
     })
 }
+
+
 
 function getWatchlist() {
     return JSON.parse(localStorage.getItem('watchlist')) || []
@@ -96,4 +98,6 @@ function removeFromWatchlist(movieId) {
     const updatedWatchlist = watchlist.filter(id => id !== movieId);
     updateWatchlist(updatedWatchlist);
 }
+
+
 

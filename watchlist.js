@@ -1,5 +1,6 @@
 
 const resultsContainer = document.getElementById("results-container")
+const mainContent = document.getElementById("main-content")
 
 class Movie {
     constructor(id, name, score, runtime, genre, description, posterUrl) {
@@ -21,7 +22,7 @@ function displayMovies(movies) {
             <h2>${movie.name} (⭐${movie.score})</h2>
             <h3>${movie.runtime} ${movie.genre}</h3>
             <p>${movie.description}</p>
-            <button onclick="removeFromWatchlist('${movie.id}')">Remove</button>
+            <button onclick="removeFromWatchlist('${movie.id}')" class="btn"><i id="icon" class="fa-solid fa-circle-minus"></i> Remove</button>
         `
         resultsContainer.appendChild(movieElement)
     })
