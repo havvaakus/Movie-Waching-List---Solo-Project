@@ -84,7 +84,7 @@ function updateWatchlist(watchlist) {
 //Add the movies local storage
 function addToWatchlist(movieId) {
     const watchlist = getWatchlist();
-    if (!watchlist.some(movie => movie.id === movieId)) {
+    if (!watchlist.some(id => id == movieId)) {
         watchlist.push(movieId)
         updateWatchlist(watchlist);
     }
@@ -93,7 +93,7 @@ function addToWatchlist(movieId) {
 // Remove item from local storage with given id
 function removeFromWatchlist(movieId) {
     const watchlist = getWatchlist();
-    const updatedWatchlist = watchlist.filter(movie => movie.id !== movieId);
+    const updatedWatchlist = watchlist.filter(id => id !== movieId);
     updateWatchlist(updatedWatchlist);
 }
 
