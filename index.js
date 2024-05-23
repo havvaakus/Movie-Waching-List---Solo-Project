@@ -64,10 +64,9 @@ function displayMovies(movies) {
         const movieElement = document.createElement('div')
         movieElement.innerHTML = `
             <img src=${movie.posterUrl}></img>
-            <h2>${movie.name} (⭐${movie.score})</h2>
-            <h3>${movie.runtime} ${movie.genre}</h3>
+            <h2>${movie.name} ⭐${movie.score}</h2>
+            <h3>${movie.runtime} ${movie.genre} ${!isInWatchlist ? `<button onclick="addToWatchlist('${movie.id}')" class="btn"><i class="fa fa-plus"></i> Watchlist</button>` : "<p>Added to watchlist!</p>"}</h3>
             <p>${movie.description}</p>
-            ${!isInWatchlist ? `<button onclick="addToWatchlist('${movie.id}')" class="btn"><i class="fa fa-plus"></i> Watchlist</button>` : "<p>Movie is already in your watchlist</p>"}
         `
         resultsContainer.appendChild(movieElement)
     })
